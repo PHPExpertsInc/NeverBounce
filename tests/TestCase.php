@@ -7,7 +7,7 @@
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
  *   GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
  *   https://www.phpexperts.pro/
- *   https://github.com/phpexpertsinc/NeverBounce
+ *   https://github.com/PHPExpertsInc/NeverBounce
  *
  * This file is licensed under the MIT License.
  */
@@ -35,5 +35,16 @@ abstract class TestCase extends BaseTestCase
         }
 
         parent::__construct($name, $data, $dataName);
+    }
+
+    /**
+     * Checks if phpunit was togged in debug mode o rnot.
+     * See https://stackoverflow.com/a/12612733/430062.
+     *
+     * @return bool
+     */
+    public static function isDebugOn(): bool
+    {
+        return in_array('--debug', $_SERVER['argv'], true);
     }
 }

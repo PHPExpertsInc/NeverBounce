@@ -17,7 +17,7 @@ script:
   - php vendor/bin/phpcs --standard=PSR12 src
   - php vendor/bin/phpcs --standard=PSR1 tests
   - php vendor/bin/phpstan analyze --level max src
-  - vendor/bin/phpunit --coverage-text --coverage-clover build/logs/clover.xml
+  - vendor/bin/phpunit --debug --coverage-text --coverage-clover build/logs/clover.xml
 
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT

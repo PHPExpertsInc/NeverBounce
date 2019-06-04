@@ -14,20 +14,8 @@
 
 namespace PHPExperts\NeverBounceClient;
 
-use LogicException;
-use PHPExperts\RESTSpeaker\RESTAuth as BaseAuth;
+use UnexpectedValueException;
 
-class RestAuth extends BaseAuth
+class InvalidEmailAddressException extends UnexpectedValueException
 {
-    protected function generateOAuth2TokenOptions(): array
-    {
-        throw new LogicException('NeverBounce no longer supports OAuth2.');
-    }
-
-    protected function generatePasskeyOptions(): array
-    {
-        return [
-            'query' => ['key' => env('NEVERBOUNCE_API_KEY')],
-        ];
-    }
 }
