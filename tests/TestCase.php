@@ -28,8 +28,11 @@ abstract class TestCase extends BaseTestCase
      */
     public function __construct($name = null, array $data = [], $dataName = '')
     {
-        $dotenv = Dotenv::create(__DIR__ . '/../', '.env');
-        $dotenv->load();
+//        dd($_SERVER);
+        if (file_exists(__DIR__ . '/../.env')) {
+            $dotenv = Dotenv::create(__DIR__ . '/../');
+            $dotenv->load();
+        }
 
         parent::__construct($name, $data, $dataName);
     }
