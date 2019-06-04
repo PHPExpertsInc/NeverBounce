@@ -56,7 +56,8 @@ class BulkValidationTest extends TestCase
         $client = NeverBounceClient::build();
 
         $response = null;
-        for ($a = 1; $a <= 5; ++$a) {
+        // Try for up to 5 minutes.
+        for ($a = 1; $a <= 300; ++$a) {
             $response = $client->checkJob($jobId);
             self::assertEquals($client->getLastJobStatus(), $client->getLastResponse()->job_status);
 
@@ -68,10 +69,15 @@ class BulkValidationTest extends TestCase
                 self::assertNotContains(
                     $client->getLastJobStatus(),
                     ['failed', 'under_review', 'complete'],
-                    'The bulk validation job returned an unexpected status.',
+                    'The bulk validation job returned an unexpected status.'
                 );
 
-                sleep(1);
+                $seconds = (int) ceil($a / 5);
+                if (TestCase::isDebugOn()) {
+                    dump("Sleeping for $seconds seconds...");
+                }
+
+                sleep($seconds);
             }
 
             if (is_array($response)) {
