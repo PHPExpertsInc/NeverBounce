@@ -14,6 +14,7 @@
 
 namespace PHPExperts\NeverBounceClient;
 
+use http\Exception\RuntimeException;
 use PHPExperts\RESTSpeaker\RESTAuthDriver;
 use PHPExperts\RESTSpeaker\RESTSpeaker;
 
@@ -38,5 +39,31 @@ class NeverBounceClient
         }
 
         return new self($client);
+    }
+
+    public function validate(string $email): \stdClass
+    {
+        $response = $this->api->post('/v4/single/check', [
+            'json' => ['email' => $email],
+        ]);
+
+        if (!$response || !($response instanceof \stdClass) || ($response->status ?? false) !== 'success') {
+            throw new NeverBounceAPIException($this->api->getLastResponse(), '', $this->api->getLastStatusCode());
+        }
+
+        return $response;
+    }
+
+    public function isValid(string $email): bool
+    {
+        $response = $this->validate($email);
+
+        if (!$response || !($response instanceof \stdClass) || ($response->status ?? false) !== 'success') {
+            throw new NeverBounceAPIException($this->api->getLastResponse(), '', $this->api->getLastStatusCode());
+        }
+
+        $status = $response->result ?? false;
+
+        return $status === 'valid' || $status === 'catchall';
     }
 }
