@@ -14,8 +14,26 @@
 
 namespace PHPExperts\NeverBounceClient\Tests;
 
+use Dotenv\Dotenv;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
+    /**
+     * Constructs a test case with the given name.
+     *
+     * @param string $name
+     * @param array  $data
+     * @param string $dataName
+     */
+    public function __construct($name = null, array $data = [], $dataName = '')
+    {
+//        dd($_SERVER);
+        if (file_exists(__DIR__ . '/../.env')) {
+            $dotenv = Dotenv::create(__DIR__ . '/../');
+            $dotenv->load();
+        }
+
+        parent::__construct($name, $data, $dataName);
+    }
 }

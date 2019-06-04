@@ -16,8 +16,45 @@ composer require phpexperts/neverbounce
 
 ## Usage
 
+```php
+    // Build the client.
+    $client = NeverBounceClient::build();
+    
+    // Quickly determine if an email is valid or not.
+    $response = $client->isValid('theodore@phpexperts.pro');
+    // Output: true or false
+    
+    // Get details as to why an email is valid or not.
+    $response = $client->validate('doesnt-exist@gmail.com');
+
+    /* Output: 
+    {
+      +"status": "success"
+      +"result": "invalid"
+      +"flags": array:4 [
+        0 => "free_email_host"
+        1 => "has_dns"
+        2 => "has_dns_mx"
+        3 => "smtp_connectable"
+      ]
+      +"suggested_correction": ""
+      +"execution_time": 309
+    }
+    */
+```
 
 ## Use cases
+
+PHPExperts\NeverBounceClient  
+ ✔ Can build itself  
+ ✔ Will validate a good email  
+ ✔ Will validate a catch all email  
+ ✔ Will validate an invalid domain email  
+ ✔ Will validate an invalid account email  
+ ✔ Will detect free email hosts  
+ ✔ Can determine if an email is good  
+ ✔ Can determine if an email has an invalid domain  
+ ✔ Can determine if an email has an invalid account  
 
 ## Testing
 
