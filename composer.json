@@ -1,0 +1,45 @@
+{
+    "name": "phpexperts/neverbounce",
+    "description": "A quick and easy client for the NeverBounce API.",
+    "keywords": [
+        "neverbounce",
+        "api",
+        "neverbounce client"
+    ],
+    "homepage": "https://www.phpexperts.pro/",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "PHP Experts, Inc.",
+            "homepage": "https://www.phpexperts.pro/"
+        },
+        {
+            "name": "Theodore R. Smith",
+            "homepage": "https://www.linkedin.com/in/tedrsmith"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "ext-json": "*",
+        "phpexperts/rest-speaker": "^1.0",
+        "phpexperts/laravel-env-polyfill": "^1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "7.*|8.*",
+        "mockery/mockery": "^1.0",
+        "phpstan/phpstan": "*",
+        "friendsofphp/php-cs-fixer": "*",
+        "symfony/var-dumper": "*",
+        "povils/phpmnd": "*",
+        "squizlabs/php_codesniffer": "*",
+        "vimeo/psalm": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "PHPExperts\\NeverBounceClient\\" : "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": { "PHPExperts\\NeverBounceClient\\Tests\\" : "tests/" }
+    }
+}
