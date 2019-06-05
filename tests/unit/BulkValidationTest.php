@@ -19,7 +19,6 @@ use GuzzleHttp\Handler\MockHandler as GuzzleMocker;
 use GuzzleHttp\Psr7\Response;
 use PHPExperts\NeverBounceClient\NeverBounceClient;
 use PHPExperts\NeverBounceClient\Tests\Integration\BulkValidationTest as BulkValidationIntegrationTestCase;
-use PHPExperts\NeverBounceClient\Tests\TestCase;
 use PHPExperts\RESTSpeaker\HTTPSpeaker;
 use PHPExperts\RESTSpeaker\RESTSpeaker;
 
@@ -73,7 +72,7 @@ class BulkValidationTest extends BulkValidationIntegrationTestCase
             'created_at'       => '2019-06-04 22:54:41',
             'started_at'       => null,
             'finished_at'      => null,
-            'total'            => (object)[
+            'total'            => (object) [
                 'records'    => 0,
                 'billable'   => 0,
                 'processed'  => 0,
@@ -98,7 +97,7 @@ class BulkValidationTest extends BulkValidationIntegrationTestCase
             'created_at'  => '2019-06-04 22:54:41',
             'started_at'  => null,
             'finished_at' => null,
-            'total'       => (object)[
+            'total'       => (object) [
                 'records'    => 0,
                 'billable'   => 0,
                 'processed'  => 0,
@@ -123,7 +122,7 @@ class BulkValidationTest extends BulkValidationIntegrationTestCase
             'created_at'       => '2019-06-04 22:54:41',
             'started_at'       => date('Y-m-d h:i:s'),
             'finished_at'      => date('Y-m-d h:i:s'),
-            'total'            => (object)[
+            'total'            => (object) [
                 'records'    => 7,
                 'billable'   => 5,
                 'processed'  => 7,
@@ -153,7 +152,7 @@ class BulkValidationTest extends BulkValidationIntegrationTestCase
             'created_at'       => '2019-06-04 22:54:41',
             'started_at'       => date('Y-m-d h:i:s'),
             'finished_at'      => date('Y-m-d h:i:s'),
-            'total'            => (object)[
+            'total'            => (object) [
                 'records'    => 7,
                 'billable'   => 5,
                 'processed'  => 7,

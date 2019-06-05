@@ -20,7 +20,6 @@ return PhpCsFixer\Config::create()
         'list_syntax'    => ['syntax'  => 'short'],
         'concat_space'   => ['spacing' => 'one'],
         'binary_operator_spaces' => array(
-            'align_equals'       => true,
             'align_double_arrow' => true,
         ),
         'declare_strict_types'         => true,

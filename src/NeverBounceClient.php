@@ -14,7 +14,6 @@
 
 namespace PHPExperts\NeverBounceClient;
 
-use PHPExperts\RESTSpeaker\RESTAuthDriver;
 use PHPExperts\RESTSpeaker\RESTSpeaker;
 
 class NeverBounceClient
@@ -146,7 +145,7 @@ class NeverBounceClient
             throw new NeverBounceAPIException($response, 'Bulk validation check failed. See last response.');
         }
 
-        $this->lastResponse  = $response;
+        $this->lastResponse = $response;
         $this->lastJobStatus = $response->job_status;
 
         if (in_array($response->job_status, ['failed', 'under_review'])) {

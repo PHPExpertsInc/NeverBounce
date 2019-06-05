@@ -90,7 +90,7 @@ class NeverBounceClientTest extends NeverBounceIntegrationTestCase
             'status'               => 'success',
             'result'               => 'invalid',
             'suggested_correction' => '',
-            'flags' => [
+            'flags'                => [
                 'bad_dns',
             ],
         ]);
@@ -104,7 +104,7 @@ class NeverBounceClientTest extends NeverBounceIntegrationTestCase
             'status'               => 'success',
             'result'               => 'invalid',
             'suggested_correction' => '',
-            'flags' => [
+            'flags'                => [
                 'has_dns',
                 'free_email_host',
             ],
@@ -119,7 +119,7 @@ class NeverBounceClientTest extends NeverBounceIntegrationTestCase
             'status'               => 'success',
             'result'               => 'valid',
             'suggested_correction' => '',
-            'flags' => [
+            'flags'                => [
                 'has_dns',
                 'free_email_host',
             ],
