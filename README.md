@@ -56,10 +56,19 @@ PHPExperts\NeverBounceClient
  ✔ Can determine if an email has an invalid domain  
  ✔ Can determine if an email has an invalid account  
 
+PHPExperts\NeverBounceClient: Bulk Validations  
+ ✔ Can submit a bulk validation request  
+ ✔ Can poll job until completed  
+ ✔ Will retrieve bulk validation results  
+
 ## Testing
 
 ```bash
-phpunit --testdox
+# Run without needing a NeverBounce key / not using up your free quota.
+phpunit --testdox --exclude-group=thorough
+
+# Run the full suite.
+phpunit --testdox 
 ```
 
 ## Contributors

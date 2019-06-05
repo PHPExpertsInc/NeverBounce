@@ -14,6 +14,7 @@
 
 namespace PHPExperts\NeverBounceClient\Tests\Integration;
 
+use PHPExperts\NeverBounceClient\NeverBounceAPIException;
 use PHPExperts\NeverBounceClient\NeverBounceClient;
 use PHPExperts\NeverBounceClient\Tests\TestCase;
 
@@ -48,7 +49,12 @@ class BulkValidationTest extends TestCase
     /** @group thorough */
     public function testCanSubmitABulkValidationRequest(): int
     {
-        $jobId = $this->api->bulkVerify($this->getVariousEmails());
+        try {
+            $jobId = $this->api->bulkVerify($this->getVariousEmails());
+        } catch (NeverBounceAPIException $e) {
+            dump($e->getResponse());
+            $this->fail('There was an API exception.');
+        }
         self::assertIsInt($jobId);
 
         $response = $this->api->getLastResponse();
@@ -70,7 +76,12 @@ class BulkValidationTest extends TestCase
 
         // Try for up to 5 minutes.
         for ($a = 1; $a <= 300; ++$a) {
-            $response = $this->api->checkJob($jobId);
+            try {
+                $response = $this->api->checkJob($jobId);
+            } catch (NeverBounceAPIException $e) {
+                dump($e->getResponse());
+                $this->fail('There was an API exception.');
+            }
             self::assertEquals($this->api->getLastJobStatus(), $this->api->getLastResponse()->job_status);
 
             if ($response === null) {
