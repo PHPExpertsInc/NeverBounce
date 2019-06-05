@@ -41,5 +41,8 @@
     },
     "autoload-dev": {
         "psr-4": { "PHPExperts\\NeverBounceClient\\Tests\\" : "tests/" }
+    },
+    "config": {
+        "classmap-authoritative": true
     }
 }

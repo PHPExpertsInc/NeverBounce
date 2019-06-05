@@ -14,7 +14,6 @@
 
 namespace PHPExperts\NeverBounceClient;
 
-use PHPExperts\RESTSpeaker\RESTAuthDriver;
 use PHPExperts\RESTSpeaker\RESTSpeaker;
 
 class NeverBounceClient
@@ -22,7 +21,7 @@ class NeverBounceClient
     /** @var RESTSpeaker */
     protected $api;
 
-    /** @var \stdClass */
+    /** @var \stdClass|object|null */
     private $lastResponse;
 
     /** @var string */
@@ -33,20 +32,17 @@ class NeverBounceClient
         $this->api = $client;
     }
 
-    public static function build(RESTSpeaker $client = null, RESTAuthDriver $restAuth = null): self
+    public static function build(RESTSpeaker $client = null): self
     {
-        if ($restAuth === null) {
-            $restAuth = new RestAuth(RestAuth::AUTH_MODE_PASSKEY);
-        }
-
         if ($client === null) {
+            $restAuth = new RestAuth(RestAuth::AUTH_MODE_PASSKEY);
             $client = new RESTSpeaker($restAuth, 'https://api.neverbounce.com');
         }
 
         return new self($client);
     }
 
-    public function getLastResponse(): ?\stdClass
+    public function getLastResponse()
     {
         return $this->lastResponse;
     }
@@ -149,7 +145,7 @@ class NeverBounceClient
             throw new NeverBounceAPIException($response, 'Bulk validation check failed. See last response.');
         }
 
-        $this->lastResponse  = $response;
+        $this->lastResponse = $response;
         $this->lastJobStatus = $response->job_status;
 
         if (in_array($response->job_status, ['failed', 'under_review'])) {

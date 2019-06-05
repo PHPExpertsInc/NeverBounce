@@ -12,23 +12,32 @@
  * This file is licensed under the MIT License.
  */
 
-namespace PHPExperts\NeverBounceClient\Tests;
+namespace PHPExperts\NeverBounceClient\Tests\Integration;
 
 use PHPExperts\NeverBounceClient\NeverBounceClient;
+use PHPExperts\NeverBounceClient\Tests\TestCase;
 
-/** @testdox PHPExperts\NeverBounceClient */
+/**
+ * @testdox PHPExperts\NeverBounceClient
+ */
 class NeverBounceClientTest extends TestCase
 {
-    public function testCanBuildItself()
+    /** @var NeverBounceClient */
+    protected $api;
+
+    public function setUp(): void
     {
-        $client = NeverBounceClient::build();
-        self::assertInstanceOf(NeverBounceClient::class, $client);
+        if ($this->api === null) {
+            $this->api = NeverBounceClient::build();
+        }
+
+        parent::setUp();
     }
 
+    /** @group thorough */
     public function testWillValidateAGoodEmail()
     {
-        $client   = NeverBounceClient::build();
-        $response = $client->validate('support@neverbounce.com');
+        $response = $this->api->validate('support@neverbounce.com');
 
         self::assertInstanceOf(\stdClass::class, $response);
         self::assertEquals('success', $response->status);
@@ -36,10 +45,10 @@ class NeverBounceClientTest extends TestCase
         self::assertEquals('', $response->suggested_correction);
     }
 
+    /** @group thorough */
     public function testWillValidateACatchAllEmail()
     {
-        $client   = NeverBounceClient::build();
-        $response = $client->validate('catchall@phpexperts.pro');
+        $response = $this->api->validate('catchall@phpexperts.pro');
 
         self::assertInstanceOf(\stdClass::class, $response);
         self::assertEquals('success', $response->status);
@@ -47,11 +56,10 @@ class NeverBounceClientTest extends TestCase
         self::assertEquals('', $response->suggested_correction);
     }
 
+    /** @group thorough */
     public function testWillValidateAnInvalidDomainEmail()
     {
-        $client   = NeverBounceClient::build();
-        $response = $client->validate('hopefully@thisdomainwillnever.exist');
-//        dd($response);
+        $response = $this->api->validate('hopefully@thisdomainwillnever.exist');
 
         self::assertInstanceOf(\stdClass::class, $response);
         self::assertEquals('success', $response->status);
@@ -60,10 +68,10 @@ class NeverBounceClientTest extends TestCase
         self::assertContains('bad_dns', $response->flags);
     }
 
+    /** @group thorough */
     public function testWillValidateAnInvalidAccountEmail()
     {
-        $client   = NeverBounceClient::build();
-        $response = $client->validate('hopefully-doesnt-exist@gmail.com');
+        $response = $this->api->validate('hopefully-doesnt-exist@gmail.com');
 
         self::assertInstanceOf(\stdClass::class, $response);
         self::assertEquals('success', $response->status);
@@ -72,10 +80,10 @@ class NeverBounceClientTest extends TestCase
         self::assertContains('has_dns', $response->flags);
     }
 
+    /** @group thorough */
     public function testWillDetectFreeEmailHosts()
     {
-        $client   = NeverBounceClient::build();
-        $response = $client->validate('hopeseekr@gmail.com');
+        $response = $this->api->validate('hopeseekr@gmail.com');
 
         self::assertInstanceOf(\stdClass::class, $response);
         self::assertEquals('success', $response->status);
@@ -85,26 +93,26 @@ class NeverBounceClientTest extends TestCase
         self::assertContains('free_email_host', $response->flags);
     }
 
+    /** @group thorough */
     public function testCanDetermineIfAnEmailIsGood()
     {
-        $client   = NeverBounceClient::build();
-        $response = $client->isValid('theodore@phpexperts.pro');
+        $response = $this->api->isValid('theodore@phpexperts.pro');
 
         self::assertTrue($response, 'A valid email returned false.');
     }
 
+    /** @group thorough */
     public function testCanDetermineIfAnEmailHasAnInvalidDomain()
     {
-        $client   = NeverBounceClient::build();
-        $response = $client->isValid('hopefully@thisdomainwillnever.exist');
+        $response = $this->api->isValid('hopefully@thisdomainwillnever.exist');
 
         self::assertFalse($response, 'An email with an invalid domain returned true.');
     }
 
+    /** @group thorough */
     public function testCanDetermineIfAnEmailHasAnInvalidAccount()
     {
-        $client   = NeverBounceClient::build();
-        $response = $client->isValid('hopefully-doesnt-exist@gmail.com');
+        $response = $this->api->isValid('hopefully-doesnt-exist@gmail.com');
 
         self::assertFalse($response, 'A valid email with an invalid account returned true.');
     }
