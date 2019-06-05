@@ -16,7 +16,7 @@ namespace PHPExperts\NeverBounceClient\Tests\Unit;
 
 use PHPExperts\RESTSpeaker\RESTAuth;
 
-class RESTAuthMock extends RESTAuth
+class RESTAuthStub extends RESTAuth
 {
     /** @noinspection PhpMissingParentConstructorInspection */
     public function __construct()

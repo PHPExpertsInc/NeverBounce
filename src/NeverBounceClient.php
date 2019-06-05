@@ -33,13 +33,10 @@ class NeverBounceClient
         $this->api = $client;
     }
 
-    public static function build(RESTSpeaker $client = null, RESTAuthDriver $restAuth = null): self
+    public static function build(RESTSpeaker $client = null): self
     {
-        if ($restAuth === null) {
-            $restAuth = new RestAuth(RestAuth::AUTH_MODE_PASSKEY);
-        }
-
         if ($client === null) {
+            $restAuth = new RestAuth(RestAuth::AUTH_MODE_PASSKEY);
             $client = new RESTSpeaker($restAuth, 'https://api.neverbounce.com');
         }
 

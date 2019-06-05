@@ -12,100 +12,164 @@
  * This file is licensed under the MIT License.
  */
 
-namespace PHPExperts\NeverBounceClient\Tests;
+namespace PHPExperts\NeverBounceClient\Tests\Unit;
 
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Handler\MockHandler as GuzzleMocker;
+use GuzzleHttp\Psr7\Response;
 use PHPExperts\NeverBounceClient\NeverBounceClient;
+use PHPExperts\NeverBounceClient\Tests\Integration\NeverBounceClientTest as NeverBounceIntegrationTestCase;
+use PHPExperts\RESTSpeaker\HTTPSpeaker;
+use PHPExperts\RESTSpeaker\RESTSpeaker;
 
-/** @testdox PHPExperts\NeverBounceClient */
-class NeverBounceClientTest extends TestCase
+/** @testdox PHPExperts\NeverBounceClient Unit Tests */
+class NeverBounceClientTest extends NeverBounceIntegrationTestCase
 {
+    /** @var GuzzleMocker */
+    private $guzzlePuppet;
+
+    public function setUp(): void
+    {
+        $restAuthStub = new RESTAuthStub();
+        $this->guzzlePuppet = new GuzzleMocker();
+        $http = new HTTPSpeaker('', new GuzzleClient(['handler' => $this->guzzlePuppet]));
+
+        $restSpeaker = new RESTSpeaker($restAuthStub, '', $http);
+        $this->api = NeverBounceClient::build($restSpeaker);
+
+        parent::setUp();
+    }
+
+    protected function craftGuzzleResponse(array $input, int $statusCode = 200)
+    {
+        $this->guzzlePuppet->append(
+            new Response(
+                $statusCode,
+                ['Content-Type' => 'application/json'],
+                json_encode($input)
+            )
+        );
+    }
+
     public function testCanBuildItself()
     {
         $client = NeverBounceClient::build();
         self::assertInstanceOf(NeverBounceClient::class, $client);
     }
 
-    public function testWillValidateAGoodEmail()
+    public function testWillValidateAGoodEmail(): array
     {
-        $client   = NeverBounceClient::build();
-        $response = $client->validate('support@neverbounce.com');
+        $expected = [
+            'status'               => 'success',
+            'result'               => 'valid',
+            'suggested_correction' => '',
+        ];
 
-        self::assertInstanceOf(\stdClass::class, $response);
-        self::assertEquals('success', $response->status);
-        self::assertEquals('valid', $response->result);
-        self::assertEquals('', $response->suggested_correction);
+        $json = json_encode($expected);
+        $this->craftGuzzleResponse($expected);
+
+        parent::testWillValidateAGoodEmail();
+
+        return [$this->api, $expected];
     }
 
     public function testWillValidateACatchAllEmail()
     {
-        $client   = NeverBounceClient::build();
-        $response = $client->validate('catchall@phpexperts.pro');
+        $this->craftGuzzleResponse([
+            'status'               => 'success',
+            'result'               => 'catchall',
+            'suggested_correction' => '',
+        ]);
 
-        self::assertInstanceOf(\stdClass::class, $response);
-        self::assertEquals('success', $response->status);
-        self::assertEquals('catchall', $response->result);
-        self::assertEquals('', $response->suggested_correction);
+        parent::testWillValidateACatchAllEmail();
     }
 
     public function testWillValidateAnInvalidDomainEmail()
     {
-        $client   = NeverBounceClient::build();
-        $response = $client->validate('hopefully@thisdomainwillnever.exist');
-//        dd($response);
+        $this->craftGuzzleResponse([
+            'status'               => 'success',
+            'result'               => 'invalid',
+            'suggested_correction' => '',
+            'flags' => [
+                'bad_dns',
+            ],
+        ]);
 
-        self::assertInstanceOf(\stdClass::class, $response);
-        self::assertEquals('success', $response->status);
-        self::assertEquals('invalid', $response->result);
-        self::assertEquals('', $response->suggested_correction);
-        self::assertContains('bad_dns', $response->flags);
+        parent::testWillValidateAnInvalidDomainEmail();
     }
 
     public function testWillValidateAnInvalidAccountEmail()
     {
-        $client   = NeverBounceClient::build();
-        $response = $client->validate('hopefully-doesnt-exist@gmail.com');
+        $this->craftGuzzleResponse([
+            'status'               => 'success',
+            'result'               => 'invalid',
+            'suggested_correction' => '',
+            'flags' => [
+                'has_dns',
+                'free_email_host',
+            ],
+        ]);
 
-        self::assertInstanceOf(\stdClass::class, $response);
-        self::assertEquals('success', $response->status);
-        self::assertEquals('invalid', $response->result);
-        self::assertEquals('', $response->suggested_correction);
-        self::assertContains('has_dns', $response->flags);
+        parent::testCanDetermineIfAnEmailHasAnInvalidAccount();
     }
 
     public function testWillDetectFreeEmailHosts()
     {
-        $client   = NeverBounceClient::build();
-        $response = $client->validate('hopeseekr@gmail.com');
+        $this->craftGuzzleResponse([
+            'status'               => 'success',
+            'result'               => 'valid',
+            'suggested_correction' => '',
+            'flags' => [
+                'has_dns',
+                'free_email_host',
+            ],
+        ]);
 
-        self::assertInstanceOf(\stdClass::class, $response);
-        self::assertEquals('success', $response->status);
-        self::assertEquals('valid', $response->result);
-        self::assertEquals('', $response->suggested_correction);
-        self::assertContains('has_dns', $response->flags);
-        self::assertContains('free_email_host', $response->flags);
+        parent::testWillDetectFreeEmailHosts();
     }
 
     public function testCanDetermineIfAnEmailIsGood()
     {
-        $client   = NeverBounceClient::build();
-        $response = $client->isValid('theodore@phpexperts.pro');
+        $this->craftGuzzleResponse([
+            'status' => 'success',
+            'result' => 'valid',
+        ]);
 
-        self::assertTrue($response, 'A valid email returned false.');
+        $response = $this->api->isValid('hopeseekr@gmail.com');
+        self::assertTrue($response);
     }
 
     public function testCanDetermineIfAnEmailHasAnInvalidDomain()
     {
-        $client   = NeverBounceClient::build();
-        $response = $client->isValid('hopefully@thisdomainwillnever.exist');
+        $this->craftGuzzleResponse([
+            'status' => 'success',
+            'result' => 'invalid',
+        ]);
 
-        self::assertFalse($response, 'An email with an invalid domain returned true.');
+        $response = $this->api->isValid('hopefully@thisdomainwillnever.exist');
+        self::assertFalse($response);
     }
 
     public function testCanDetermineIfAnEmailHasAnInvalidAccount()
     {
-        $client   = NeverBounceClient::build();
-        $response = $client->isValid('hopefully-doesnt-exist@gmail.com');
+        $this->craftGuzzleResponse([
+            'status' => 'success',
+            'result' => 'invalid',
+        ]);
 
-        self::assertFalse($response, 'A valid email with an invalid account returned true.');
+        $response = $this->api->isValid('hopefully-doesnt-exist@gmail.com');
+        self::assertFalse($response);
+    }
+
+    /**
+     * @testdox Can get the last API response
+     * @depends testWillValidateAGoodEmail
+     */
+    public function testCanGetTheLastAPIResponse($params)
+    {
+        [$api, $payload] = $params;
+        $expected = (object) $payload;
+
+        self::assertEquals($expected, $api->getLastResponse());
     }
 }

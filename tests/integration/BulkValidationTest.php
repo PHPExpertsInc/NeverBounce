@@ -12,13 +12,26 @@
  * This file is licensed under the MIT License.
  */
 
-namespace PHPExperts\NeverBounceClient\Tests;
+namespace PHPExperts\NeverBounceClient\Tests\Integration;
 
 use PHPExperts\NeverBounceClient\NeverBounceClient;
+use PHPExperts\NeverBounceClient\Tests\TestCase;
 
 /** @testdox PHPExperts\NeverBounceClient: Bulk Validations */
 class BulkValidationTest extends TestCase
 {
+    /** @var NeverBounceClient */
+    protected $api;
+
+    public function setUp(): void
+    {
+        if ($this->api === null) {
+            $this->api = NeverBounceClient::build();
+        }
+
+        parent::setUp();
+    }
+
     public static function getVariousEmails(): array
     {
         return [
@@ -32,14 +45,13 @@ class BulkValidationTest extends TestCase
         ];
     }
 
+    /** @group thorough */
     public function testCanSubmitABulkValidationRequest(): int
     {
-        $client = NeverBounceClient::build();
-
-        $jobId = $client->bulkVerify($this->getVariousEmails());
+        $jobId = $this->api->bulkVerify($this->getVariousEmails());
         self::assertIsInt($jobId);
 
-        $response = $client->getLastResponse();
+        $response = $this->api->getLastResponse();
         self::assertEquals('success', $response->status);
         self::assertIsInt($response->job_id);
 
@@ -47,27 +59,27 @@ class BulkValidationTest extends TestCase
     }
 
     /**
+     * @group thorough
      * @depends testCanSubmitABulkValidationRequest
      *
      * @return array
      */
     public function testCanPollJobUntilCompleted(int $jobId): array
     {
-        $client = NeverBounceClient::build();
-
         $response = null;
+
         // Try for up to 5 minutes.
         for ($a = 1; $a <= 300; ++$a) {
-            $response = $client->checkJob($jobId);
-            self::assertEquals($client->getLastJobStatus(), $client->getLastResponse()->job_status);
+            $response = $this->api->checkJob($jobId);
+            self::assertEquals($this->api->getLastJobStatus(), $this->api->getLastResponse()->job_status);
 
             if ($response === null) {
                 if (TestCase::isDebugOn()) {
-                    dump('Job is not done: ' . $client->getLastJobStatus());
+                    dump('Job is not done: ' . $this->api->getLastJobStatus());
                 }
 
                 self::assertNotContains(
-                    $client->getLastJobStatus(),
+                    $this->api->getLastJobStatus(),
                     ['failed', 'under_review', 'complete'],
                     'The bulk validation job returned an unexpected status.'
                 );
@@ -92,6 +104,7 @@ class BulkValidationTest extends TestCase
     }
 
     /**
+     * @group thorough
      * @depends testCanPollJobUntilCompleted
      *
      * @param array $response
@@ -126,5 +139,7 @@ class BulkValidationTest extends TestCase
 
         self::assertEquals('complete', $response['job_status']);
         self::assertSame($expected, $response['total']);
+        self::assertGreaterThan(25, $response['bounce_estimate']);
+        self::assertEquals(100, $response['percent_complete']);
     }
 }
