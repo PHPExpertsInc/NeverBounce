@@ -22,7 +22,7 @@ class NeverBounceClient
     /** @var RESTSpeaker */
     protected $api;
 
-    /** @var \stdClass */
+    /** @var \stdClass|object|null */
     private $lastResponse;
 
     /** @var string */
@@ -43,7 +43,7 @@ class NeverBounceClient
         return new self($client);
     }
 
-    public function getLastResponse(): ?\stdClass
+    public function getLastResponse()
     {
         return $this->lastResponse;
     }
