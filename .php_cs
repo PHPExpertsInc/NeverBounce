@@ -22,6 +22,7 @@ return PhpCsFixer\Config::create()
         'binary_operator_spaces' => array(
             'align_double_arrow' => true,
         ),
+        'phpdoc_no_alias_tag'          => false,
         'declare_strict_types'         => true,
         'no_superfluous_elseif'        => true,
         'blank_line_after_opening_tag' => false,

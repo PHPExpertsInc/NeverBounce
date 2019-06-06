@@ -14,6 +14,8 @@
 
 namespace PHPExperts\NeverBounceClient\Tests\Integration;
 
+use PHPExperts\NeverBounceClient\DTOs\BulkValidationDTO;
+use PHPExperts\NeverBounceClient\DTOs\ListStatsDTO;
 use PHPExperts\NeverBounceClient\NeverBounceAPIException;
 use PHPExperts\NeverBounceClient\NeverBounceClient;
 use PHPExperts\NeverBounceClient\Tests\TestCase;
@@ -53,6 +55,7 @@ class BulkValidationTest extends TestCase
             $jobId = $this->api->bulkVerify($this->getVariousEmails());
         } catch (NeverBounceAPIException $e) {
             dump($e->getResponse());
+            throw $e;
             $this->fail('There was an API exception.');
         }
         self::assertIsInt($jobId);
@@ -68,9 +71,11 @@ class BulkValidationTest extends TestCase
      * @group thorough
      * @depends testCanSubmitABulkValidationRequest
      *
-     * @return array
+     * @param int $jobId
+     *
+     * @return BulkValidationDTO
      */
-    public function testCanPollJobUntilCompleted(int $jobId): array
+    public function testCanPollJobUntilCompleted(int $jobId): BulkValidationDTO
     {
         $response = null;
 
@@ -79,7 +84,7 @@ class BulkValidationTest extends TestCase
             try {
                 $response = $this->api->checkJob($jobId);
             } catch (NeverBounceAPIException $e) {
-                dump($e->getResponse());
+                dump([$e->getMessage(), $e->getResponse()]);
                 $this->fail('There was an API exception.');
             }
             self::assertEquals($this->api->getLastJobStatus(), $this->api->getLastResponse()->job_status);
@@ -103,13 +108,13 @@ class BulkValidationTest extends TestCase
                 sleep($seconds);
             }
 
-            if (is_array($response)) {
+            if ($response !== null) {
                 break;
             }
         }
 
-        self::assertIsArray($response);
-        self::assertNotEmpty($response);
+        self::assertInstanceOf(BulkValidationDTO::class, $response);
+        self::assertEquals('success', $response->status);
 
         return $response;
     }
@@ -118,22 +123,21 @@ class BulkValidationTest extends TestCase
      * @group thorough
      * @depends testCanPollJobUntilCompleted
      *
-     * @param array $response
+     * @param BulkValidationDTO $response
      */
-    public function testWillRetrieveBulkValidationResults(array $response)
+    public function testWillRetrieveBulkValidationResults(BulkValidationDTO $response)
     {
         if (TestCase::isDebugOn()) {
             dump($response);
         }
 
-        self::assertNotEmpty($response);
-        self::assertArrayHasKey('status', $response);
-        self::assertEquals('success', $response['status']);
-        self::assertNotEmpty($response['total']);
-        $response['total'] = (array) $response['total'];
-        self::assertNotEmpty($response['bounce_estimate']);
-        self::assertNotEmpty($response['percent_complete']);
-        self::assertNotEmpty($response['job_status']);
+        self::assertInstanceOf(BulkValidationDTO::class, $response);
+        self::assertEquals('success', $response->status);
+        self::assertInstanceOf(ListStatsDTO::class, $response->total);
+        $listStats = $response->total->toArray();
+        self::assertNotEmpty($response->bounce_estimate);
+        self::assertNotEmpty($response->percent_complete);
+        self::assertNotEmpty($response->job_status);
 
         $expected = [
             'records'    => 7,
@@ -148,9 +152,10 @@ class BulkValidationTest extends TestCase
             'bad_syntax' => 1,
         ];
 
-        self::assertEquals('complete', $response['job_status']);
-        self::assertSame($expected, $response['total']);
-        self::assertGreaterThan(25, $response['bounce_estimate']);
-        self::assertEquals(100, $response['percent_complete']);
+        self::assertSame($expected, $listStats);
+
+        self::assertEquals('complete', $response->job_status);
+        self::assertGreaterThan(25, $response->bounce_estimate);
+        self::assertEquals(100, $response->percent_complete);
     }
 }

@@ -14,6 +14,10 @@
 
 namespace PHPExperts\NeverBounceClient;
 
+use PHPExperts\DataTypeValidator\InvalidDataTypeException;
+use PHPExperts\NeverBounceClient\DTOs\BulkRequestDTO;
+use PHPExperts\NeverBounceClient\DTOs\BulkValidationDTO;
+use PHPExperts\NeverBounceClient\DTOs\EmailValidationDTO;
 use PHPExperts\RESTSpeaker\RESTSpeaker;
 
 class NeverBounceClient
@@ -21,7 +25,7 @@ class NeverBounceClient
     /** @var RESTSpeaker */
     protected $api;
 
-    /** @var \stdClass|object|null */
+    /** @var BulkValidationDTO|object|null */
     private $lastResponse;
 
     /** @var string */
@@ -52,19 +56,23 @@ class NeverBounceClient
         return $this->lastJobStatus;
     }
 
-    public function validate(string $email): \stdClass
+    public function validate(string $email): EmailValidationDTO
     {
         $response = $this->api->post('/v4/single/check', [
-            'json' => ['email' => $email],
+            'json' => [
+                'email' => $email,
+            ],
         ]);
 
         $this->lastResponse = $response;
 
-        if (!$response || !($response instanceof \stdClass) || ($response->status ?? false) !== 'success') {
+        if (!($response instanceof \stdClass) || ($response->status ?? false) !== 'success') {
             throw new NeverBounceAPIException($this->api->getLastResponse(), '', $this->api->getLastStatusCode());
         }
 
-        return $response;
+        $this->lastResponse = new EmailValidationDTO((array) $response);
+
+        return $this->lastResponse;
     }
 
     public function isValid(string $email): bool
@@ -73,7 +81,7 @@ class NeverBounceClient
 
         $this->lastResponse = $response;
 
-        if (!$response || !($response instanceof \stdClass) || ($response->status ?? false) !== 'success') {
+        if ($response->status !== 'success') {
             throw new NeverBounceAPIException($this->api->getLastResponse(), '', $this->api->getLastStatusCode());
         }
 
@@ -106,13 +114,13 @@ class NeverBounceClient
         $epoch = time();
 
         $response = $this->api->post('/v4/jobs/create', [
-            'json' => [
+            'json' => new BulkRequestDTO([
                 'input_location' => 'supplied',
                 'filename'       => "bulk-$epoch.csv",
                 'auto_start'     => true,
                 'auto_parse'     => true,
                 'input'          => $payload,
-            ],
+            ]),
         ]);
 
         $this->lastResponse = $response;
@@ -131,9 +139,9 @@ class NeverBounceClient
      *
      * @param int $jobId
      *
-     * @return array|null array if the job has finished; null if it is still being processed
+     * @return BulkValidationDTO|null array if the job has finished; null if it is still being processed
      */
-    public function checkJob(int $jobId): ?array
+    public function checkJob(int $jobId): ?BulkValidationDTO
     {
         $response = $this->api->post('/v4/jobs/status', [
             'json' => [
@@ -141,7 +149,17 @@ class NeverBounceClient
             ],
         ]);
 
-        if (($response->status ?? false) !== 'success' || !is_string($response->job_status ?? null)) {
+        $this->lastResponse = $response;
+        $this->lastJobStatus = 'exception';
+
+        try {
+            $response = new BulkValidationDTO((array) $response);
+        } catch (InvalidDataTypeException $e) {
+            $payload = [$response, $e->getReasons()];
+            throw new NeverBounceAPIException($payload, 'The NeverBounce API contract has changed.');
+        }
+
+        if ($response->status !== 'success') {
             throw new NeverBounceAPIException($response, 'Bulk validation check failed. See last response.');
         }
 
@@ -156,6 +174,6 @@ class NeverBounceClient
             return null;
         }
 
-        return (array) $response;
+        return $response;
     }
 }
