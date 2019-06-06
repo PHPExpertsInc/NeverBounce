@@ -25,7 +25,7 @@ class NeverBounceClient
     /** @var RESTSpeaker */
     protected $api;
 
-    /** @var BulkValidationDTO|null */
+    /** @var BulkValidationDTO|object|null */
     private $lastResponse;
 
     /** @var string */
@@ -66,7 +66,7 @@ class NeverBounceClient
 
         $this->lastResponse = $response;
 
-        if (!$response || !($response instanceof \stdClass) || ($response->status ?? false) !== 'success') {
+        if (!($response instanceof \stdClass) || ($response->status ?? false) !== 'success') {
             throw new NeverBounceAPIException($this->api->getLastResponse(), '', $this->api->getLastStatusCode());
         }
 
@@ -139,7 +139,7 @@ class NeverBounceClient
      *
      * @param int $jobId
      *
-     * @return array|null array if the job has finished; null if it is still being processed
+     * @return BulkValidationDTO|null array if the job has finished; null if it is still being processed
      */
     public function checkJob(int $jobId): ?BulkValidationDTO
     {
@@ -155,7 +155,8 @@ class NeverBounceClient
         try {
             $response = new BulkValidationDTO((array) $response);
         } catch (InvalidDataTypeException $e) {
-            throw new NeverBounceAPIException([$response, $e->getReasons()], 'The NeverBounce API contract has changed.');
+            $payload = [$response, $e->getReasons()];
+            throw new NeverBounceAPIException($payload, 'The NeverBounce API contract has changed.');
         }
 
         if ($response->status !== 'success') {
