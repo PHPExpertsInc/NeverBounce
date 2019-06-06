@@ -20,6 +20,7 @@ before_script:
   - travis_retry composer install --no-interaction --prefer-source
 
 script:
+  - set -e
   - mkdir -p build/logs
   - if [ "$TO_TEST" = "ALL" ]; then php vendor/bin/phpcs --standard=PSR12 src; fi
   - if [ "$TO_TEST" = "ALL" ]; then php vendor/bin/phpcs --standard=PSR1 tests; fi
