@@ -17,6 +17,7 @@ namespace PHPExperts\NeverBounceClient\Tests\Unit;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Handler\MockHandler as GuzzleMocker;
 use GuzzleHttp\Psr7\Response;
+use PHPExperts\NeverBounceClient\DTOs\BulkValidationDTO;
 use PHPExperts\NeverBounceClient\NeverBounceClient;
 use PHPExperts\NeverBounceClient\Tests\Integration\BulkValidationTest as BulkValidationIntegrationTestCase;
 use PHPExperts\RESTSpeaker\HTTPSpeaker;
@@ -62,7 +63,7 @@ class BulkValidationTest extends BulkValidationIntegrationTestCase
         return parent::testCanSubmitABulkValidationRequest();
     }
 
-    public function testCanPollJobUntilCompleted(int $jobId = 2917483): array
+    public function testCanPollJobUntilCompleted(int $jobId = 2917483): BulkValidationDTO
     {
         $this->craftGuzzleResponse([
             'status'           => 'success',
@@ -142,9 +143,9 @@ class BulkValidationTest extends BulkValidationIntegrationTestCase
         return parent::testCanPollJobUntilCompleted($jobId);
     }
 
-    public function testWillRetrieveBulkValidationResults(array $response = null)
+    public function testWillRetrieveBulkValidationResults(BulkValidationDTO $response = null)
     {
-        $response = [
+        $response = new BulkValidationDTO([
             'status'           => 'success',
             'id'               => 2917483,
             'job_status'       => 'complete',
@@ -167,7 +168,7 @@ class BulkValidationTest extends BulkValidationIntegrationTestCase
             'bounce_estimate'  => 28.571428571429,
             'percent_complete' => 100,
             'execution_time'   => 12,
-        ];
+        ]);
 
         parent::testWillRetrieveBulkValidationResults($response);
     }

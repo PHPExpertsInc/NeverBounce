@@ -62,10 +62,16 @@ class NeverBounceClientTest extends NeverBounceIntegrationTestCase
         $expected = [
             'status'               => 'success',
             'result'               => 'valid',
+            'flags'                => [
+                'role_account',
+                'has_dns',
+                'has_dns_mx',
+                'smtp_connectable',
+            ],
             'suggested_correction' => '',
+            'execution_time'       => 300,
         ];
 
-        $json = json_encode($expected);
         $this->craftGuzzleResponse($expected);
 
         parent::testWillValidateAGoodEmail();
@@ -78,7 +84,13 @@ class NeverBounceClientTest extends NeverBounceIntegrationTestCase
         $this->craftGuzzleResponse([
             'status'               => 'success',
             'result'               => 'catchall',
+            'flags'                => [
+                'has_dns',
+                'has_dns_mx',
+                'smtp_connectable',
+            ],
             'suggested_correction' => '',
+            'execution_time'       => 300,
         ]);
 
         parent::testWillValidateACatchAllEmail();
@@ -89,10 +101,11 @@ class NeverBounceClientTest extends NeverBounceIntegrationTestCase
         $this->craftGuzzleResponse([
             'status'               => 'success',
             'result'               => 'invalid',
-            'suggested_correction' => '',
             'flags'                => [
                 'bad_dns',
             ],
+            'suggested_correction' => '',
+            'execution_time'       => 300,
         ]);
 
         parent::testWillValidateAnInvalidDomainEmail();
@@ -103,11 +116,12 @@ class NeverBounceClientTest extends NeverBounceIntegrationTestCase
         $this->craftGuzzleResponse([
             'status'               => 'success',
             'result'               => 'invalid',
-            'suggested_correction' => '',
             'flags'                => [
                 'has_dns',
                 'free_email_host',
             ],
+            'suggested_correction' => '',
+            'execution_time'       => 300,
         ]);
 
         parent::testCanDetermineIfAnEmailHasAnInvalidAccount();
@@ -118,11 +132,12 @@ class NeverBounceClientTest extends NeverBounceIntegrationTestCase
         $this->craftGuzzleResponse([
             'status'               => 'success',
             'result'               => 'valid',
-            'suggested_correction' => '',
             'flags'                => [
                 'has_dns',
                 'free_email_host',
             ],
+            'suggested_correction' => '',
+            'execution_time'       => 300,
         ]);
 
         parent::testWillDetectFreeEmailHosts();
@@ -131,8 +146,14 @@ class NeverBounceClientTest extends NeverBounceIntegrationTestCase
     public function testCanDetermineIfAnEmailIsGood()
     {
         $this->craftGuzzleResponse([
-            'status' => 'success',
-            'result' => 'valid',
+            'status'               => 'success',
+            'result'               => 'valid',
+            'flags'                => [
+                'has_dns',
+                'free_email_host',
+            ],
+            'suggested_correction' => '',
+            'execution_time'       => 300,
         ]);
 
         $response = $this->api->isValid('hopeseekr@gmail.com');
@@ -142,8 +163,13 @@ class NeverBounceClientTest extends NeverBounceIntegrationTestCase
     public function testCanDetermineIfAnEmailHasAnInvalidDomain()
     {
         $this->craftGuzzleResponse([
-            'status' => 'success',
-            'result' => 'invalid',
+            'status'               => 'success',
+            'result'               => 'invalid',
+            'flags'                => [
+                'bad_dns',
+            ],
+            'suggested_correction' => '',
+            'execution_time'       => 300,
         ]);
 
         $response = $this->api->isValid('hopefully@thisdomainwillnever.exist');
@@ -153,8 +179,14 @@ class NeverBounceClientTest extends NeverBounceIntegrationTestCase
     public function testCanDetermineIfAnEmailHasAnInvalidAccount()
     {
         $this->craftGuzzleResponse([
-            'status' => 'success',
-            'result' => 'invalid',
+            'status'               => 'success',
+            'result'               => 'invalid',
+            'flags'                => [
+                'has_dns',
+                'free_email_host',
+            ],
+            'suggested_correction' => '',
+            'execution_time'       => 300,
         ]);
 
         $response = $this->api->isValid('hopefully-doesnt-exist@gmail.com');
@@ -168,8 +200,7 @@ class NeverBounceClientTest extends NeverBounceIntegrationTestCase
     public function testCanGetTheLastAPIResponse($params)
     {
         [$api, $payload] = $params;
-        $expected = (object) $payload;
 
-        self::assertEquals($expected, $api->getLastResponse());
+        self::assertEquals($payload, $api->getLastResponse()->toArray());
     }
 }

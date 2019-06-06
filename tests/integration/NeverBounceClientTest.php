@@ -14,6 +14,7 @@
 
 namespace PHPExperts\NeverBounceClient\Tests\Integration;
 
+use PHPExperts\NeverBounceClient\DTOs\EmailValidationDTO;
 use PHPExperts\NeverBounceClient\NeverBounceClient;
 use PHPExperts\NeverBounceClient\Tests\TestCase;
 
@@ -39,7 +40,7 @@ class NeverBounceClientTest extends TestCase
     {
         $response = $this->api->validate('support@neverbounce.com');
 
-        self::assertInstanceOf(\stdClass::class, $response);
+        self::assertInstanceOf(EmailValidationDTO::class, $response);
         self::assertEquals('success', $response->status);
         self::assertEquals('valid', $response->result);
         self::assertEquals('', $response->suggested_correction);
@@ -50,7 +51,7 @@ class NeverBounceClientTest extends TestCase
     {
         $response = $this->api->validate('catchall@phpexperts.pro');
 
-        self::assertInstanceOf(\stdClass::class, $response);
+        self::assertInstanceOf(EmailValidationDTO::class, $response);
         self::assertEquals('success', $response->status);
         self::assertEquals('catchall', $response->result);
         self::assertEquals('', $response->suggested_correction);
@@ -61,7 +62,7 @@ class NeverBounceClientTest extends TestCase
     {
         $response = $this->api->validate('hopefully@thisdomainwillnever.exist');
 
-        self::assertInstanceOf(\stdClass::class, $response);
+        self::assertInstanceOf(EmailValidationDTO::class, $response);
         self::assertEquals('success', $response->status);
         self::assertEquals('invalid', $response->result);
         self::assertEquals('', $response->suggested_correction);
@@ -73,7 +74,7 @@ class NeverBounceClientTest extends TestCase
     {
         $response = $this->api->validate('hopefully-doesnt-exist@gmail.com');
 
-        self::assertInstanceOf(\stdClass::class, $response);
+        self::assertInstanceOf(EmailValidationDTO::class, $response);
         self::assertEquals('success', $response->status);
         self::assertEquals('invalid', $response->result);
         self::assertEquals('', $response->suggested_correction);
@@ -85,7 +86,7 @@ class NeverBounceClientTest extends TestCase
     {
         $response = $this->api->validate('hopeseekr@gmail.com');
 
-        self::assertInstanceOf(\stdClass::class, $response);
+        self::assertInstanceOf(EmailValidationDTO::class, $response);
         self::assertEquals('success', $response->status);
         self::assertEquals('valid', $response->result);
         self::assertEquals('', $response->suggested_correction);
