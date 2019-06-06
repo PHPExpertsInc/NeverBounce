@@ -21,11 +21,11 @@ before_script:
 
 script:
   - mkdir -p build/logs
-  - php vendor/bin/phpcs --standard=PSR12 src
-  - php vendor/bin/phpcs --standard=PSR1 tests
+  - if [ "$TO_TEST" = "ALL" ]; then php vendor/bin/phpcs --standard=PSR12 src; fi
+  - if [ "$TO_TEST" = "ALL" ]; then php vendor/bin/phpcs --standard=PSR1 tests; fi
   - if [ "$TO_TEST" = "ALL" ]; then php vendor/bin/phpstan analyze --level 3 src; fi
-  - if [ "$TO_TEST" = "UNIT" ]; then vendor/bin/phpunit --debug --coverage-text tests/unit --exclude-group=thorough; fi
+  - if [[ "$TO_TEST" = "UNIT" || "$TO_TEST" = "ALL" ]]; then vendor/bin/phpunit --debug --coverage-text tests/unit --exclude-group=thorough; fi
   - if [[ "$TO_TEST" = "ALL" && ! -z "$NEVERBOUNCE_API_KEY" ]]; then vendor/bin/phpunit --debug --coverage-text --coverage-clover build/logs/clover.xml; fi
 
 after_script:
-  - if [ "$TO_TEST" = "ALL" && ! -z "$CC_TEST_REPORTER_ID" ]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
+  - if [[ "$TO_TEST" = "ALL" && ! -z "$CC_TEST_REPORTER_ID" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
