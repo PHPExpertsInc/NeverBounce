@@ -20,7 +20,7 @@ use PHPExperts\NeverBounceClient\DTOs\BulkValidationDTO;
 use PHPExperts\NeverBounceClient\DTOs\EmailValidationDTO;
 use PHPExperts\RESTSpeaker\RESTSpeaker;
 
-class NeverBounceClient
+class NeverBounceClient implements EmailValidationClient
 {
     /** @var RESTSpeaker */
     protected $api;
