@@ -30,7 +30,7 @@ abstract class TestCase extends BaseTestCase
     {
 //        dd($_SERVER);
         if (file_exists(__DIR__ . '/../.env')) {
-            $dotenv = Dotenv::create(__DIR__ . '/../');
+            $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
             $dotenv->load();
         }
 
