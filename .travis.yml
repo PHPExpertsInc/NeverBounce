@@ -3,11 +3,13 @@ language: php
 # See https://gist.github.com/jamesarosen/e29076bd81a099f0f72e
 matrix:
   include:
-    - php: '7.3'
+    - php: '7.4'
       env: TO_TEST=ALL
     - php: '7.1'
       env: TO_TEST=UNIT
     - php: '7.2'
+      env: TO_TEST=UNIT
+    - php: '7.3'
       env: TO_TEST=UNIT
 
 before_script:
