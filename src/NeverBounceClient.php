@@ -111,7 +111,8 @@ class NeverBounceClient
 
         $epoch = time();
 
-        $response = $this->api->post('/v4/jobs/create',
+        $response = $this->api->post(
+            '/v4/jobs/create',
             new BulkRequestDTO([
                 'input_location' => 'supplied',
                 'filename'       => "bulk-$epoch.csv",
