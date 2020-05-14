@@ -59,9 +59,7 @@ class NeverBounceClient
     public function validate(string $email): EmailValidationDTO
     {
         $response = $this->api->post('/v4/single/check', [
-            'json' => [
-                'email' => $email,
-            ],
+            'email' => $email,
         ]);
 
         $this->lastResponse = $response;
@@ -113,15 +111,15 @@ class NeverBounceClient
 
         $epoch = time();
 
-        $response = $this->api->post('/v4/jobs/create', [
-            'json' => new BulkRequestDTO([
+        $response = $this->api->post('/v4/jobs/create',
+            new BulkRequestDTO([
                 'input_location' => 'supplied',
                 'filename'       => "bulk-$epoch.csv",
                 'auto_start'     => true,
                 'auto_parse'     => true,
                 'input'          => $payload,
-            ]),
-        ]);
+            ])
+        );
 
         $this->lastResponse = $response;
 
@@ -144,9 +142,7 @@ class NeverBounceClient
     public function checkJob(int $jobId): ?BulkValidationDTO
     {
         $response = $this->api->post('/v4/jobs/status', [
-            'json' => [
-                'job_id' => $jobId,
-            ],
+            'job_id' => $jobId,
         ]);
 
         $this->lastResponse = $response;

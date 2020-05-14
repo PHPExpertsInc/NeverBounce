@@ -21,7 +21,7 @@
     "require": {
         "php": ">=7.1",
         "ext-json": "*",
-        "phpexperts/rest-speaker": "^1.0",
+        "phpexperts/rest-speaker": "^2.0",
         "phpexperts/laravel-env-polyfill": "^1.0",
         "phpexperts/simple-dto": "^2.3",
         "vlucas/phpdotenv": "^4.0"
