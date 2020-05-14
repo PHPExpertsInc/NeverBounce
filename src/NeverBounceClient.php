@@ -3,7 +3,7 @@
 /**
  * This file is part of a NeverBounce API Client, a PHP Experts, Inc., Project.
  *
- * Copyright © 2019 PHP Experts, Inc.
+ * Copyright © 2019-2020 PHP Experts, Inc.
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
  *   GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
  *   https://www.phpexperts.pro/
@@ -59,9 +59,7 @@ class NeverBounceClient
     public function validate(string $email): EmailValidationDTO
     {
         $response = $this->api->post('/v4/single/check', [
-            'json' => [
-                'email' => $email,
-            ],
+            'email' => $email,
         ]);
 
         $this->lastResponse = $response;
@@ -113,15 +111,16 @@ class NeverBounceClient
 
         $epoch = time();
 
-        $response = $this->api->post('/v4/jobs/create', [
-            'json' => new BulkRequestDTO([
+        $response = $this->api->post(
+            '/v4/jobs/create',
+            new BulkRequestDTO([
                 'input_location' => 'supplied',
                 'filename'       => "bulk-$epoch.csv",
                 'auto_start'     => true,
                 'auto_parse'     => true,
                 'input'          => $payload,
-            ]),
-        ]);
+            ])
+        );
 
         $this->lastResponse = $response;
 
@@ -144,9 +143,7 @@ class NeverBounceClient
     public function checkJob(int $jobId): ?BulkValidationDTO
     {
         $response = $this->api->post('/v4/jobs/status', [
-            'json' => [
-                'job_id' => $jobId,
-            ],
+            'job_id' => $jobId,
         ]);
 
         $this->lastResponse = $response;

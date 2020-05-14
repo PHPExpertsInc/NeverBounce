@@ -3,11 +3,13 @@ language: php
 # See https://gist.github.com/jamesarosen/e29076bd81a099f0f72e
 matrix:
   include:
-    - php: '7.3'
+    - php: '7.4'
       env: TO_TEST=ALL
     - php: '7.1'
       env: TO_TEST=UNIT
     - php: '7.2'
+      env: TO_TEST=UNIT
+    - php: '7.3'
       env: TO_TEST=UNIT
 
 before_script:
@@ -22,7 +24,7 @@ before_script:
 script:
   - set -e
   - mkdir -p build/logs
-  - if [ "$TO_TEST" = "ALL" ]; then php vendor/bin/phpcs --standard=PSR12 src; fi
+  - if [ "$TO_TEST" = "ALL" ]; then php vendor/bin/phpcs -s --standard=psr12-modded.xml src; fi
   - if [ "$TO_TEST" = "ALL" ]; then php vendor/bin/phpcs --standard=PSR1 tests; fi
   - if [ "$TO_TEST" = "ALL" ]; then php vendor/bin/phpstan analyze --level 3 src; fi
   - if [[ "$TO_TEST" = "UNIT" || "$TO_TEST" = "ALL" ]]; then vendor/bin/phpunit --debug --coverage-text tests/unit --exclude-group=thorough; fi
