@@ -3,7 +3,7 @@
 /**
  * This file is part of a NeverBounce API Client, a PHP Experts, Inc., Project.
  *
- * Copyright © 2019-2020 PHP Experts, Inc.
+ * Copyright © 2019-2025 PHP Experts, Inc.
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
  *   GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
  *   https://www.phpexperts.pro/
@@ -20,6 +20,7 @@ use PHPExperts\NeverBounceClient\DTOs\BulkValidationDTO;
 use PHPExperts\NeverBounceClient\DTOs\EmailValidationDTO;
 use PHPExperts\RESTSpeaker\RESTSpeaker;
 
+// Note to developer: This class must be compatible with PHP 7.4-8.4.
 class NeverBounceClient
 {
     /** @var RESTSpeaker */
@@ -38,10 +39,7 @@ class NeverBounceClient
 
     public static function build(RESTSpeaker $client = null): self
     {
-        if ($client === null) {
-            $restAuth = new RestAuth(RestAuth::AUTH_MODE_PASSKEY);
-            $client = new RESTSpeaker($restAuth, 'https://api.neverbounce.com');
-        }
+        // @TODO: Implement the code here.
 
         return new self($client);
     }
@@ -58,34 +56,12 @@ class NeverBounceClient
 
     public function validate(string $email): EmailValidationDTO
     {
-        $response = $this->api->post('/v4/single/check', [
-            'email' => $email,
-        ]);
-
-        $this->lastResponse = $response;
-
-        if (!($response instanceof \stdClass) || ($response->status ?? false) !== 'success') {
-            throw new NeverBounceAPIException($this->api->getLastResponse(), '', $this->api->getLastStatusCode());
-        }
-
-        $this->lastResponse = new EmailValidationDTO((array) $response);
-
-        return $this->lastResponse;
+        // @TODO: Implement
     }
 
     public function isValid(string $email): bool
     {
-        $response = $this->validate($email);
-
-        $this->lastResponse = $response;
-
-        if ($response->status !== 'success') {
-            throw new NeverBounceAPIException($this->api->getLastResponse(), '', $this->api->getLastStatusCode());
-        }
-
-        $status = $response->result ?? false;
-
-        return $status === 'valid' || $status === 'catchall';
+        // @TODO: Implement
     }
 
     /**
@@ -97,40 +73,7 @@ class NeverBounceClient
      */
     public function bulkVerify(array $emails): int
     {
-        $payload = [];
-        foreach ($emails as $index => $email) {
-            if (!is_string($email) || strpos($email, '@') === false) {
-                if (!in_array(gettype($email), ['string', 'int', 'float'])) {
-                    $email = gettype($email);
-                }
-                throw new InvalidEmailAddressException("The email at index $index is obviously invalid: '$email'.");
-            }
-
-            $payload[] = [$email];
-        }
-
-        $epoch = time();
-
-        $response = $this->api->post(
-            '/v4/jobs/create',
-            new BulkRequestDTO([
-                'input_location' => 'supplied',
-                'filename'       => "bulk-$epoch.csv",
-                'auto_start'     => true,
-                'auto_parse'     => true,
-                'input'          => $payload,
-            ])
-        );
-
-        $this->lastResponse = $response;
-
-        if (($response->status ?? false) !== 'success' || !is_int($response->job_id ?? null)) {
-            throw new NeverBounceAPIException($response, 'Bulk validation failed. See last response.');
-        }
-
-        $jobId = $response->job_id;
-
-        return $jobId;
+        // @TODO: Implement
     }
 
     /**
@@ -142,35 +85,6 @@ class NeverBounceClient
      */
     public function checkJob(int $jobId): ?BulkValidationDTO
     {
-        $response = $this->api->post('/v4/jobs/status', [
-            'job_id' => $jobId,
-        ]);
-
-        $this->lastResponse = $response;
-        $this->lastJobStatus = 'exception';
-
-        try {
-            $response = new BulkValidationDTO((array) $response);
-        } catch (InvalidDataTypeException $e) {
-            $payload = [$response, $e->getReasons()];
-            throw new NeverBounceAPIException($payload, 'The NeverBounce API contract has changed.');
-        }
-
-        if ($response->status !== 'success') {
-            throw new NeverBounceAPIException($response, 'Bulk validation check failed. See last response.');
-        }
-
-        $this->lastResponse = $response;
-        $this->lastJobStatus = $response->job_status;
-
-        if (in_array($response->job_status, ['failed', 'under_review'])) {
-            throw new NeverBounceAPIException($response, 'A Bulk validation job has failed: ' . $response->job_status);
-        }
-
-        if ($response->job_status !== 'complete') {
-            return null;
-        }
-
-        return $response;
+        // @TODO: Implement
     }
 }
